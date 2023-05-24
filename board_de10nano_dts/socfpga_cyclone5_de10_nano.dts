@@ -1,0 +1,227 @@
+/// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2017, Intel Corporation
+ *
+ * based on socfpga_cyclone5_de0_nano_soc.dts
+ *
+ * VincNL test
+ */
+
+#include "socfpga_cyclone5.dtsi"
+
+/ {
+        model = "Terasic DE10-Nano";
+        compatible = "altr,socfpga-cyclone5", "altr,socfpga";
+
+        chosen {
+                bootargs = "earlyprintk";
+                stdout-path = "serial0:115200n8";
+        };
+
+        aliases {
+                ethernet0 = &gmac1;
+        };
+
+        memory {
+                name = "memory";
+                device_type = "memory";
+                reg = <0x0 0x40000000>; /* 1GB */
+        };
+
+        leds {
+               compatible = "gpio-leds";
+               hps0 {
+                       label = "hps_led0";
+                       gpios = <&portb 24 0>;
+                       linux,default-trigger = "heartbeat";
+               };
+        };
+
+        soc {
+                led_pio: gpio@0xff203000 {
+                        compatible = "altr,pio-1.0";
+                        reg = <0xff203000 0x10>;
+                        altr,gpio-bank-width = <7>;
+                        altr,ngpio = <7>;
+                        resetvalue = <0>;
+                        #gpio-cells = <2>;
+                        gpio-controller;
+                };
+
+                dipsw_pio: gpio@0xff204000 {
+                        compatible = "altr,pio-1.0";
+                        reg = <0xff204000 0x00000010>;
+                        interrupt-parent = <&intc>;
+                        interrupts = <0 40 1>;
+                        altr,gpio-bank-width = <4>;
+			altr,ngpio = <4>;
+                        altr,interrupt-type = <3>;
+                        altr,interrupt_type = <3>;
+                        edge_type = <2>;
+                        level_trigger = <0>;
+                        resetvalue = <0>;
+                        #gpio-cells = <2>;
+                        gpio-controller;
+                };
+
+
+                button_pio: gpio@0xff205000 {
+                        compatible = "altr,pio-1.0";
+                        reg = <0xff205000 0x00000010>;
+                        interrupt-parent = <&intc>;
+                        interrupts = <0 41 1>;
+                        altr,gpio-bank-width = <2>;
+			altr,ngpio = <2>;
+                        altr,interrupt-type = <2>;
+                        altr,interrupt_type = <2>;
+                        edge_type = <1>;
+                        level_trigger = <0>;
+                        resetvalue = <0>;
+                        #gpio-cells = <2>;
+                        gpio-controller;
+                };
+
+
+                h2f_pio: gpio@0xff206000 {
+                        compatible = "altr,pio-1.0";
+                        reg = <0xff206000 0x10>;
+                        altr,gpio-bank-width = <32>;
+                        altr,ngpio = <32>;
+                        resetvalue = <0>;
+                        #gpio-cells = <2>;
+                        gpio-controller;
+                };
+
+
+                f2h_pio: gpio@0xff207000 {
+                        compatible = "altr,pio-1.0";
+                        reg = <0xff207000 0x00000010>;
+                        interrupt-parent = <&intc>;
+                        interrupts = <0 43 1>;
+                        altr,gpio-bank-width = <32>;
+                        altr,interrupt-type = <3>;
+                        altr,interrupt_type = <3>;
+                        edge_type = <2>;
+                        level_trigger = <0>;
+                        resetvalue = <0>;
+                        #gpio-cells = <2>;
+                        gpio-controller;
+                };
+
+                rotary@0 {
+                        compatible = "rotary-encoder";
+                        gpios = <&f2h_pio 0 0>, <&f2h_pio 1 0>;
+                        linux,axis = <1>;
+                        rotary-encoder,steps = <30>;
+                        rotary-encoder,encoding = "gray";
+                        rotary-encoder,relative-axis;
+                        rotary-encoder,steps-per-period = <2>;
+                };
+
+                rotary_key@0 {
+                        compatible = "gpio-keys";
+                        #address-cells = <1>;
+                        #size-cells = <0>;
+                        linux,code = <103>;
+                        label = "rotary_key";
+                        gpios = <&f2h_pio 2 1>;
+                        autorepeat;
+                };
+		
+		dp_0_frame_buf: vip@0xff200000 {
+			compatible = "altr,vip-frame-buffer-2.0";
+			reg = <0xff200000 0x40>;
+			interrupts = <0 44 1>;
+			altr,interrupt-type = <1>;
+			//altr,max-width = <1024>;
+			//altr,max-height = <768>;
+                        altr,max-width = <640>;
+			altr,max-height = <480>;
+			altr,bits-per-symbol = <8>;
+			altr,mem-port-width = <128>;
+		};
+
+		// msgdma_controller: msgdma@0xff200000 {
+		// 	compatible = "altr,altera-msgdma";
+		// 	reg = <0xff200000 0x20>, <0xff200020 0x20>;
+		// 	reg-names = "csr", "desc";
+		// 	interrupts = <0 40 1>;
+		// 	#dma-cells = <1>;
+		// };
+	};
+};
+
+&gmac1 {
+        status = "okay";
+        phy-mode = "rgmii";
+
+        rxd0-skew-ps = <420>;
+        rxd1-skew-ps = <420>;
+        rxd2-skew-ps = <420>;
+        rxd3-skew-ps = <420>;
+        txen-skew-ps = <0>;
+        txc-skew-ps = <1860>;
+        rxdv-skew-ps = <420>;
+        rxc-skew-ps = <1680>;
+};
+
+&gpio0 {
+        status = "okay";
+};
+
+&gpio1 {
+        status = "okay";
+};
+
+&gpio2 {
+        status = "okay";
+};
+
+&porta {
+        bank-name = "porta";
+};
+
+&portb {
+        bank-name = "portb";
+};
+
+&portc {
+        bank-name = "portc";
+};
+
+&mmc0 {
+        status = "okay";
+};
+
+&usb1 {
+        status = "okay";
+};
+
+&uart0 {
+        status = "okay";
+};
+
+&watchdog0 {
+        status = "disabled";
+};
+
+&fpga_bridge0 {
+        status = "okay";
+        bridge-enable = <1>;
+};
+
+&fpga_bridge1 {
+        status = "okay";
+        bridge-enable = <1>;
+};
+
+&fpga_bridge2 {
+        status = "okay";
+        bridge-enable = <1>;
+};
+
+&fpga_bridge3 {
+        status = "okay";
+        bridge-enable = <1>;
+};
+
