@@ -1,26 +1,37 @@
-Buildroot is a simple, efficient and easy-to-use tool to generate embedded
-Linux systems through cross-compilation.
+Buildroot Project for DE10_NANO Board, Terasic.
+name: Ron Krakovsky
 
-The documentation can be found in docs/manual. You can generate a text
-document with 'make manual-text' and read output/docs/manual/manual.text.
-Online documentation can be found at http://buildroot.org/docs.html
+------------------------------------------------------------------------------------
+My Changes - 
+* the defconfig for this board in /configs/terasic_de10nano_cyclone5_defconfig
+* Device Tree in /board_de10nano_dts/socfpga_cyclone5_de10_nano.dts
+* genimage for SDcard in folder board/terasic/de10nano_cyclone5/genimage.cfg
 
-To build and use the buildroot stuff, do the following:
+------------------------------------------------------------------------------------
+Create Image ,follow this steps -
+1) git clone this project to your computer.
+2) run 'make terasic_de10nano_cyclone5_defconfig' (this defconfig have the base for run image and more things that I add, like QT5)
+3) run 'make menuconfig' (change things you want add ot change for your project image)
+** if you want save your changes in configs run 'make savedefconfig' (it will save it in configs files by name terasic_de10nano_cyclone5_defconfig)
+4) run 'make' (to generate image and sdcard, becuase I add genimage in board de10_nano it create itself sdcard)
+5) wait while it compiles and all files will save in output files.
 
-1) run 'make menuconfig'
-2) select the target architecture and the packages you wish to compile
-3) run 'make'
-4) wait while it compiles
-5) find the kernel, bootloader, root filesystem, etc. in output/images
+Copy SDcard.imag in sdcard ,follow this steps -
+1) run 'lsblk' (find your sdcard name)
+2) run 'sudo umount sdb' (to check if nothing mount to your sdcard, (sdb is my name if sdcard))
+3) run 'sudo dd if=sdcard.img of=/dev/sdb bs=1M status=progress' (to copy in sdcard the files image)
+4) wait 1 minute after run last command although it show that it finished.
+5) run 'sync' 
+6) run 'sudo eject /dev/sdb'
 
-You do not need to be root to build or run buildroot.  Have fun!
+Run your image on the board ,Follow this steps - 
+1) make sure your sdcard connected to board and the SWITCH CONFIGS on the board in the right place.
+for example, in DE10_NANO all switch ON.
+2) conect USB to your computer and if its your first time install picocom for UART Commuinication with HPS.
+run 'sudo apt install -y picocom'
+3) create USER for picocom run 'sudo usermod -a -G dialout $USER' for check run 'groups $USER'
+4) run 'picocom -b 115200 /dev/ttyUSB0' for run UART with hps
+5) enter login for your Linux image ; user = root / password = 123456
+if you dont have nothing do coldreset button 
 
-Buildroot comes with a basic configuration for a number of boards. Run
-'make list-defconfigs' to view the list of provided configurations.
 
-Please feed suggestions, bug reports, insults, and bribes back to the
-buildroot mailing list: buildroot@buildroot.org
-You can also find us on #buildroot on OFTC IRC.
-
-If you would like to contribute patches, please read
-https://buildroot.org/manual.html#submitting-patches
